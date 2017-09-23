@@ -1,0 +1,17 @@
+~/tensorflow/bazel-bin/tensorflow/tools/graph_transforms/transform_graph \
+--in_graph=classifier_site_raw.pb \
+--out_graph=classifier_site.pb \
+--inputs='input_1' \
+--outputs='output_node0' \
+--transforms='strip_unused_nodes(type=float, shape="1,224,224,3") remove_nodes(op=Identity, op=CheckNumerics) round_weights(num_steps=256) fold_constants(ignore_errors=true) fold_batch_norms fold_old_batch_norms'
+
+~/tensorflow/bazel-bin/tensorflow/tools/graph_transforms/transform_graph \
+--in_graph=opt_graph.pb \
+--out_graph=shrink_graph.pb \
+--inputs='input_1' \
+--outputs='output_node0' \
+--transforms='quantize_weights strip_unused_nodes'
+
+~/tensorflow/bazel-bin/tensorflow/contrib/util/convert_graphdef_memmapped_format --in_graph=opt_graph.pb --out_graph=mem_graph.pb
+
+~/tensorflow/bazel-bin/tensorflow/contrib/util/convert_graphdef_memmapped_format --in_graph=shrink_graph.pb --out_graph=mem_shrink_graph.pb
